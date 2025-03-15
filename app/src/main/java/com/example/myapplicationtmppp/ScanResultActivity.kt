@@ -17,13 +17,20 @@ class ScanResultActivity : AppCompatActivity() {
         val imageView: ImageView = findViewById(R.id.imageViewResult)
         val textViewResults: TextView = findViewById(R.id.textViewResults)
 
-        // Preluăm calea fișierului imagine trimis din ScannerFragment (opțional)
+        // Preluăm calea fișierului imagine trimis din ScannerFragment
         val imagePath = intent.getStringExtra("IMAGE_PATH")
         if (imagePath != null) {
             val imageFile = File(imagePath)
             if (imageFile.exists()) {
-                val bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
-                imageView.setImageBitmap(bitmap)
+                try {
+                    val bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    imageView.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    imageView.setImageResource(0)  // Setează imagini goale dacă nu reușește să încarce imaginea
+                }
+            } else {
+                imageView.setImageResource(0)  // Setează imagini goale dacă fișierul nu există
             }
         }
 
