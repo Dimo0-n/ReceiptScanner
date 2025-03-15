@@ -13,13 +13,21 @@
         android:scaleType="fitCenter"
         android:contentDescription="Captured Image" />
 
-    <!-- Afișează textul extras de pe cec -->
-    <TextView
-        android:id="@+id/textViewResults"
+    <!-- ScrollView pentru text -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Rezultatele vor apărea aici..."
-        android:textSize="18sp"
-        android:paddingTop="16dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="16dp">
+
+        <!-- TextView pentru a afișa textul extras -->
+        <TextView
+            android:id="@+id/textViewResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rezultatele vor apărea aici..."
+            android:textSize="16sp"
+            android:lineSpacingExtra="8dp" />
+    </ScrollView>
 
 </LinearLayout>
