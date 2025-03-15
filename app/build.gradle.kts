@@ -39,6 +39,11 @@ android {
 }
 
 dependencies {
+    //dependentele pentru modelul de AI
+    implementation("org.tensorflow:tensorflow-lite:2.8.0") // Exemplu pentru TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite-support:0.3.1")// Suport pentru preprocesare
+    runtimeOnly("org.tensorflow:tensorflow-lite-gpu:2.9.0")
+    runtimeOnly("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
