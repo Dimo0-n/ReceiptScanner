@@ -1,12 +1,12 @@
-package com.example.myapplicationtmppp
+package com.example.myapplicationtmppp.ui.scanner
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
+import com.example.myapplicationtmppp.R
 
 class ScanResultActivity : AppCompatActivity() {
 
@@ -20,18 +20,19 @@ class ScanResultActivity : AppCompatActivity() {
         // Preluăm calea fișierului imagine trimis din ScannerFragment
         val imagePath = intent.getStringExtra("IMAGE_PATH")
         if (imagePath != null) {
-            val imageFile = File(imagePath)
-            if (imageFile.exists()) {
-                try {
-                    val bitmap: Bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
-                    imageView.setImageBitmap(bitmap)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    imageView.setImageResource(0)  // Setează imagini goale dacă nu reușește să încarce imaginea
-                }
-            } else {
-                imageView.setImageResource(0)  // Setează imagini goale dacă fișierul nu există
+            val imageUri = Uri.parse(imagePath) // Convertim calea înapoi în URI
+            try {
+                // Încarcă imaginea din URI
+                val inputStream = contentResolver.openInputStream(imageUri)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+                imageView.setImageBitmap(bitmap)  // Afișează imaginea în ImageView
+            } catch (e: Exception) {
+                e.printStackTrace()
+                imageView.setImageResource(R.drawable.placeholder)  // Afișează o imagine de rezervă în caz de eroare
             }
+        } else {
+            imageView.setImageResource(R.drawable.placeholder)  // Afișează o imagine de rezervă dacă calea este null
         }
 
         // Preluăm textul extras din intent și îl afișăm
