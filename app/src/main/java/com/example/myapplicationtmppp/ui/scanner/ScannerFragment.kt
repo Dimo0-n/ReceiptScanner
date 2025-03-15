@@ -14,10 +14,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
+import com.example.myapplicationtmppp.ScanResultActivity
 import java.io.File
 
 class ScannerFragment : Fragment() {
@@ -66,12 +66,23 @@ class ScannerFragment : Fragment() {
             val imageBitmap = result.data?.extras?.get("data") as? Bitmap
             if (imageBitmap != null) {
                 imageView.setImageBitmap(imageBitmap)
-                capturedBitmap = imageBitmap // Salvăm imaginea pentru analiza AI
+
+                // Salvăm imaginea doar dacă nu este null
+                val imageFile = saveBitmapToFile(imageBitmap)
+                if (imageFile.exists()) {
+                    val intent = Intent(requireContext(), ScanResultActivity::class.java).apply {
+                        putExtra("IMAGE_PATH", imageFile.absolutePath)
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(requireContext(), "Eroare la salvarea imaginii", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                Toast.makeText(requireContext(), "Eroare la capturarea imaginii", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Eroare: Imaginea capturată este null!", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     //salvarea fotografiei facute intr-un fisier temporar
     private fun saveBitmapToFile(bitmap: Bitmap): File {
