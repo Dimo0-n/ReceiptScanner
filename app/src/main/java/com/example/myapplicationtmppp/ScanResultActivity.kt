@@ -17,7 +17,7 @@ class ScanResultActivity : AppCompatActivity() {
         val imageView: ImageView = findViewById(R.id.imageViewResult)
         val textViewResults: TextView = findViewById(R.id.textViewResults)
 
-        // Preluăm calea fișierului imagine trimis din ScannerFragment
+        // Preluăm calea fișierului imagine trimis din ScannerFragment (opțional)
         val imagePath = intent.getStringExtra("IMAGE_PATH")
         if (imagePath != null) {
             val imageFile = File(imagePath)
@@ -27,7 +27,12 @@ class ScanResultActivity : AppCompatActivity() {
             }
         }
 
-        // TODO: Aici va fi adăugată logica pentru procesarea AI/OCR și afișarea textului extras
-        textViewResults.text = "Rezultatele vor apărea aici..."
+        // Preluăm textul extras din intent și îl afișăm
+        val extractedText = intent.getStringExtra("EXTRACTED_TEXT")
+        if (extractedText != null) {
+            textViewResults.text = extractedText  // Afișează textul extras
+        } else {
+            textViewResults.text = "Nu s-a extras niciun text."
+        }
     }
 }
