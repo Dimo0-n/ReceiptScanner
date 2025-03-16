@@ -51,6 +51,10 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.mlkit/text-recognition
     runtimeOnly("com.google.mlkit:text-recognition:16.0.0")
 
+    // https://mvnrepository.com/artifact/androidx.recyclerview/recyclerview
+    runtimeOnly("androidx.recyclerview:recyclerview:1.4.0")
+
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
