@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-}
+git}
 
 android {
     namespace = "com.example.myapplicationtmppp"
