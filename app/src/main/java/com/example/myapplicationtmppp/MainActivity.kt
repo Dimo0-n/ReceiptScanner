@@ -1,30 +1,37 @@
-package com.example.myapplicationtmppp
+package com.example.myapplicationtmppp.ui
 
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.Menu
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
+import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplicationtmppp.databinding.ActivityMainBinding
+import com.example.myapplicationtmppp.imageprocessing.*
+import com.example.myapplicationtmppp.imageprocessing.OpenCVInitializer
+import com.example.myapplicationtmppp.R
+
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var imageView: ImageView
+    private lateinit var btnProcess: Button
+    private var capturedBitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        OpenCVInitializer.initialize()
 
-        setSupportActionBar(binding.appBarMain.toolbar)
+        imageView = findViewById(R.id.imageView)
+        btnProcess = findViewById(R.id.btnProcess)
+        
+        btnProcess.setOnClickListener {
+            capturedBitmap?.let { bitmap ->
+                val processedBitmap = ImageProcessor.preprocessImage(bitmap)
+                imageView.setImageBitmap(processedBitmap)
+                OCRProcessor.recognizeText(processedBitmap, this)
+            }
+        }
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView

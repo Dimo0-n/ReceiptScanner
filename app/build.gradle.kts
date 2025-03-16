@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services") // ✅ Add this line
+
 }
 
 android {
@@ -63,4 +65,22 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ✅ OpenCV for Image Processing
+    implementation("com.quickbirdstudios:opencv:4.5.3.0")
+
+    // ✅ Tesseract OCR for Text Recognition
+    implementation("com.rmtheis:tess-two:9.1.0")
+
+    // ✅ Google ML Kit for QR Code Scanning
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    // Firebase Authentication
+    implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
+
+    // Firebase Storage (for secure image uploads)
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+
+    // Firebase Firestore (if storing user roles)
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+
 }
