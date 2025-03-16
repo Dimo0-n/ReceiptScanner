@@ -55,6 +55,8 @@ dependencies {
     runtimeOnly("com.google.mlkit:text-recognition:16.0.0")
 
     // Dependințe Android
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
