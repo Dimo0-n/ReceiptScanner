@@ -41,6 +41,17 @@ android {
 }
 
 dependencies {
+    //dependentele pentru modelul de AI
+    implementation("org.tensorflow:tensorflow-lite:2.8.0") // Exemplu pentru TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite-support:0.3.1")
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)// Suport pentru preprocesare
+    runtimeOnly("org.tensorflow:tensorflow-lite-gpu:2.9.0")
+    runtimeOnly("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
+
+    //ML Kit de la google alternativa pnetru ai-ul nostru
+    // https://mvnrepository.com/artifact/com.google.mlkit/text-recognition
+    runtimeOnly("com.google.mlkit:text-recognition:16.0.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
