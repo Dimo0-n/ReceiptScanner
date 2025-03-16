@@ -1,38 +1,58 @@
-package com.example.myapplicationtmppp
+package com.example.myapplicationtmppp.ui
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.example.myapplicationtmppp.R
 import com.example.myapplicationtmppp.databinding.ActivityMainBinding
+import com.example.myapplicationtmppp.imageprocessing.ImageProcessor
+import com.example.myapplicationtmppp.imageprocessing.OCRProcessor
+import com.example.myapplicationtmppp.imageprocessing.OpenCVInitializer
 import com.example.myapplicationtmppp.ui.notifications.NotificationSettingsActivity
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var imageView: ImageView
+    private lateinit var btnProcess: Button
+    private var capturedBitmap: Bitmap? = null
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.appBarMain.toolbar)
+        OpenCVInitializer.initialize()
+
+        imageView = findViewById(R.id.imageView)
+        btnProcess = findViewById(R.id.btnProcess)
+
+        btnProcess.setOnClickListener {
+            capturedBitmap?.let { bitmap ->
+                val processedBitmap = ImageProcessor.preprocessImage(bitmap)
+                imageView.setImageBitmap(processedBitmap)
+                OCRProcessor.recognizeText(processedBitmap, this)
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), 101)
@@ -83,5 +103,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 }
