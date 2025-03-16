@@ -8,7 +8,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.telephony.SmsManager
 import androidx.core.app.ActivityCompat
@@ -16,7 +15,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.myapplicationtmppp.MainActivity
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.ui.utils.NotificationStorage
 
 class NotificationUtils(private val context: Context) {
 

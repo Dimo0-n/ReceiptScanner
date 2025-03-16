@@ -48,6 +48,7 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite-support:0.3.1") // Suport preprocesare
     implementation(libs.play.services.mlkit.text.recognition.common)
     implementation(libs.play.services.mlkit.text.recognition)
+    implementation(libs.play.services.mlkit.barcode.scanning)
     runtimeOnly("org.tensorflow:tensorflow-lite-gpu:2.9.0") // GPU acceleration
     runtimeOnly("org.tensorflow:tensorflow-lite-task-vision:0.4.0") // Task vision
 
