@@ -5,7 +5,6 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.ui.utils.NotificationStorage
 
 class NotificationActivity : AppCompatActivity() {
 

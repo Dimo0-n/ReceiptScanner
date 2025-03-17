@@ -27,18 +27,26 @@ android {
             )
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    
+
     kotlinOptions {
         jvmTarget = "11"
     }
-    
+
     buildFeatures {
         viewBinding = true
+    }
+
+    // ✅ Adaugă blocul packagingOptions aici
+    packagingOptions {
+        exclude("META-INF/NOTICE.md")
+        exclude("META-INF/LICENSE.md")
+        exclude("META-INF/INDEX.LIST")
+        exclude("META-INF/DEPENDENCIES")
     }
 }
 
@@ -67,6 +75,12 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity)
+
+    // https://mvnrepository.com/artifact/javax.mail/mail
+    implementation("com.sun.mail:android-mail:1.6.7") {
+        exclude(group = "com.sun.mail", module = "android-activation")
+    }
+    implementation("com.sun.mail:android-activation:1.6.7")
 
     // Testare
     testImplementation(libs.junit)

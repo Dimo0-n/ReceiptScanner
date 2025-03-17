@@ -1,4 +1,4 @@
-package com.example.myapplicationtmppp.utils
+package com.example.myapplicationtmppp.ui.notifications
 
 import android.Manifest
 import android.app.Activity

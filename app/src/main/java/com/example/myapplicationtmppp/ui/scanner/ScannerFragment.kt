@@ -20,8 +20,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.utils.NotificationManager
-import com.example.myapplicationtmppp.utils.NotificationUtils
+import com.example.myapplicationtmppp.ui.notifications.NotificationManager
+import com.example.myapplicationtmppp.ui.notifications.NotificationUtils
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
