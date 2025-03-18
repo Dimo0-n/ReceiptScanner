@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alege tipul de notificări"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="10dp"/>
+
+    <CheckBox
+        android:id="@+id/check_push_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notificări Push"/>
+
+    <CheckBox
+        android:id="@+id/check_email_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notificări Email"/>
+
+    <CheckBox
+        android:id="@+id/check_sms_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notificări SMS"/>
+
+    <Button
+        android:id="@+id/button_save_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_rounded_containers_game"
+        android:text="Salvează Preferințele"
+        android:layout_marginTop="20dp"/>
+    <TextView
+        android:textSize="20sp"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alte setari apar pe parcurs"/>
+
+</LinearLayout>
