@@ -82,5 +82,6 @@ dependencies {
 
     // Firebase Firestore (if storing user roles)
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+    implementation("com.google.firebase:firebase-auth-ktx:22.0.0")
 
 }
