@@ -112,4 +112,8 @@ dependencies {
 
     // Firebase Firestore (dacă stochezi informații despre utilizatori)
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+
+    implementation("com.google.firebase:firebase-auth-ktx:22.0.0")
+
 }
+

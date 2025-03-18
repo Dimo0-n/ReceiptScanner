@@ -1,29 +1,45 @@
 package com.example.myapplicationtmppp.auth
 
+import android.app.Activity
+import android.util.Log
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 
-object AuthManager {
+class AuthManager {
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    fun loginUser(email: String, password: String, callback: (Boolean, String) -> Unit) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+    fun registerUser(email: String, password: String, activity: Activity, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
-                    callback(true, "Login Successful")
+                    onSuccess()
                 } else {
-                    callback(false, task.exception?.message ?: "Login Failed")
+                    onFailure(task.exception?.message ?: "Registration failed")
                 }
             }
     }
 
-    fun registerUser(email: String, password: String, callback: (Boolean, String) -> Unit) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+    fun loginUser(email: String, password: String, activity: Activity, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
-                    callback(true, "Registration Successful")
+                    onSuccess()
                 } else {
-                    callback(false, task.exception?.message ?: "Registration Failed")
+                    onFailure(task.exception?.message ?: "Login failed")
                 }
             }
+    }
+
+    fun logoutUser() {
+        auth.signOut()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return auth.currentUser != null
+    }
+
+    fun getCurrentUserEmail(): String? {
+        return auth.currentUser?.email
     }
 }
