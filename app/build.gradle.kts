@@ -61,7 +61,15 @@ dependencies {
     runtimeOnly("org.tensorflow:tensorflow-lite-task-vision:0.4.0") // Task vision
 
     // ML Kit de la Google - alternativă pentru AI
-    runtimeOnly("com.google.mlkit:text-recognition:16.0.0")
+    implementation ("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation ("androidx.camera:camera-core:1.1.0")
+    implementation ("androidx.camera:camera-camera2:1.1.0")
+    implementation ("androidx.camera:camera-lifecycle:1.1.0")
+    implementation ("androidx.camera:camera-view:1.0.0-alpha31")
+
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
     // Dependințe Android
     implementation("androidx.recyclerview:recyclerview:1.4.0")
