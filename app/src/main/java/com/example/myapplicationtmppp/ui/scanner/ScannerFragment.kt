@@ -20,8 +20,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.ui.notifications.NotificationManager
-import com.example.myapplicationtmppp.ui.notifications.NotificationUtils
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -36,7 +34,7 @@ class ScannerFragment : Fragment() {
     private lateinit var imageView: ImageView
     private lateinit var ocrProcessor: OCRProcessor
     private var imageUri: Uri? = null
-    private lateinit var notificationUtils: NotificationUtils
+    private val PICK_IMAGE_REQUEST = 1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,11 +42,10 @@ class ScannerFragment : Fragment() {
         val view = inflater.inflate(R.layout.scanner_layout, container, false)
 
         val buttonScan: Button = view.findViewById(R.id.button_scan)
-        val buttonRecentsScan: Button = view.findViewById(R.id.button_recents_scan)
+        val buttonRecentsScan: Button = view.findViewById(R.id.gallery_button)
         imageView = view.findViewById(R.id.imageViewPreview)
 
         ocrProcessor = OCRProcessor(requireContext())
-        notificationUtils = NotificationUtils(requireContext())
 
         buttonScan.setOnClickListener { openCamera() }
         buttonRecentsScan.setOnClickListener {
@@ -56,6 +53,15 @@ class ScannerFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val galleryButton: Button = view.findViewById(R.id.gallery_button)
+        galleryButton.setOnClickListener {
+            openGallery()
+        }
     }
 
     private fun openCamera() {
@@ -81,7 +87,7 @@ class ScannerFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 imageUri?.let {
                     imageView.setImageURI(it)
-                    processCapturedImage(it)
+                    processImage(it)
                 } ?: Toast.makeText(requireContext(), "Eroare: Imaginea capturată este null!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -98,37 +104,43 @@ class ScannerFragment : Fragment() {
         }
     }
 
-    private fun processCapturedImage(imageUri: Uri) {
+    private fun processImage(imageUri: Uri) {
         try {
             val image = InputImage.fromFilePath(requireContext(), imageUri)
-            ocrProcessor.processImage(
-                image,
-                onSuccess = { extractedText ->
-                    val intent = Intent(requireContext(), ScanResultActivity::class.java).apply {
-                        putExtra("EXTRACTED_TEXT", extractedText)
-                        putExtra("IMAGE_PATH", imageUri.toString())
-                    }
-                    startActivity(intent)
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-                    // Salvează notificarea în memoria locală și afișează notificarea
-                    NotificationManager.saveNotification(requireContext(), "Text extras cu succes: $extractedText")
-                    notificationUtils.showNotification("Scanare completă", "Text extras cu succes!")
-                },
-                onFailure = { e ->
-                    // Salvează notificarea de eroare în memoria locală și afișează notificarea
-                    NotificationManager.saveNotification(requireContext(), "Eroare la procesarea imaginii: ${e.message}")
-                    notificationUtils.showNotification("Eroare", "Eroare la procesarea imaginii!")
-                    Toast.makeText(requireContext(), "Eroare la procesarea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
+            recognizer.process(image)
+                .addOnSuccessListener { visionText ->
+                    val intent = Intent(requireContext(), ScanResultActivity::class.java)
+                    intent.putExtra("IMAGE_PATH", imageUri.toString())
+                    intent.putExtra("EXTRACTED_TEXT", visionText.text)
+                    startActivity(intent)
                 }
-            )
+                .addOnFailureListener { e ->
+                    e.printStackTrace()
+                }
         } catch (e: IOException) {
-            NotificationManager.saveNotification(requireContext(), "Eroare la citirea imaginii: ${e.message}")
-            notificationUtils.showNotification("Eroare", "Eroare la citirea imaginii!")
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Eroare la citirea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedImageUri: Uri? = data.data
+            selectedImageUri?.let { uri ->
+                processImage(uri)
+            }
+        }
+    }
 
     private fun checkCameraPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -151,6 +163,10 @@ class ScannerFragment : Fragment() {
                 Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun processImageFromCamera(imageUri: Uri) {
+        processImage(imageUri)
     }
 
     companion object {

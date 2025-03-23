@@ -25,13 +25,13 @@
         android:text="New Receipt Scan" />
 
     <Button
-        android:id="@+id/button_recents_scan"
+        android:id="@+id/gallery_button"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/shape_rounded_containers_game"
-        android:text="Scan from recents" />
+        android:text="Scan from gallery" />
 
     <ImageView
         android:id="@+id/imageViewPreview"
