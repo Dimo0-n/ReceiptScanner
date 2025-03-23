@@ -4,9 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplicationtmppp.ui.MainActivity
-import com.example.myapplicationtmppp.databinding.ActivityLoginBinding
 import com.example.myapplicationtmppp.MainActivity
+import com.example.myapplicationtmppp.databinding.ActivityLoginBinding
 import com.example.myapplicationtmppp.auth.AuthManager
 import com.google.firebase.auth.FirebaseAuth
 
