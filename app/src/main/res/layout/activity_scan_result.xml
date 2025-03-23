@@ -1,33 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <!-- Afișează imaginea capturată -->
-    <ImageView
-        android:id="@+id/imageViewResult"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:scaleType="fitCenter"
-        android:contentDescription="Captured Image" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- ScrollView pentru text -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingTop="16dp">
+        <ImageView
+            android:id="@+id/imageViewResult"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="16dp"/>
 
-        <!-- TextView pentru a afișa textul extras -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Text Brut Extras:"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/textViewRawText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Text Procesat:"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
         <TextView
             android:id="@+id/textViewResults"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rezultatele vor apărea aici..."
-            android:textSize="16sp"
-            android:lineSpacingExtra="8dp" />
-    </ScrollView>
+            android:padding="8dp"
+            android:textColor="@color/white"/>
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

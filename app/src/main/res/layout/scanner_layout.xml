@@ -16,7 +16,7 @@
         tools:text="Scan your Receipt" />
 
     <Button
-        android:id="@+id/button_scan"
+        android:id="@+id/camera_button"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginLeft="50dp"

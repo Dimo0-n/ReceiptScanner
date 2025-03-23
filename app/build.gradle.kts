@@ -60,8 +60,7 @@ dependencies {
     runtimeOnly("org.tensorflow:tensorflow-lite-gpu:2.9.0") // GPU acceleration
     runtimeOnly("org.tensorflow:tensorflow-lite-task-vision:0.4.0") // Task vision
 
-    // ML Kit de la Google - alternativă pentru AI
-    runtimeOnly("com.google.mlkit:text-recognition:16.0.0")
+    implementation ("com.google.android.gms:play-services-mlkit-text-recognition:16.0.0")
 
     // Dependințe Android
     implementation("androidx.recyclerview:recyclerview:1.4.0")
@@ -87,25 +86,25 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // ✅ OpenCV pentru procesare imagini
     implementation("com.quickbirdstudios:opencv:4.5.3.0")
 
-    // ✅ Tesseract OCR pentru recunoaștere text
     implementation("com.rmtheis:tess-two:9.1.0")
 
-    // ✅ Google ML Kit pentru scanare coduri QR
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
-    // Firebase Authentication
     implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
 
-    // Firebase Storage (pentru încărcarea securizată a imaginilor)
     implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
 
-    // Firebase Firestore (dacă stochezi informații despre utilizatori)
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
 
     implementation("com.google.firebase:firebase-auth-ktx:22.0.0")
+
+    // https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+    implementation("com.itextpdf:itextpdf:5.5.13.4")
+
+    // https://mvnrepository.com/artifact/com.tom-roush/pdfbox-android
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 
 }
 

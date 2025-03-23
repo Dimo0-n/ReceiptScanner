@@ -30,7 +30,7 @@
         <!-- Configurație FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="com.example.myapplicationtmppp.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -44,10 +44,12 @@
 
         <activity
             android:name=".ui.notifications.NotificationActivity"
+            android:exported="false"
             />
 
         <activity
-            android:name=".ui.notifications.NotificationSettingsActivity" />
+            android:name=".ui.notifications.NotificationSettingsActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".ui.RegisterActivity"

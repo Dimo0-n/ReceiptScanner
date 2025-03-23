@@ -16,6 +16,7 @@ class ScanResultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_scan_result)
 
         val imageView: ImageView = findViewById(R.id.imageViewResult)
+        val textViewRawText: TextView = findViewById(R.id.textViewRawText)
         val textViewResults: TextView = findViewById(R.id.textViewResults)
 
         // Preluăm calea fișierului imagine trimis din ScannerFragment
@@ -38,9 +39,14 @@ class ScanResultActivity : AppCompatActivity() {
         // Preluăm textul extras din intent și îl procesăm
         val extractedText = intent.getStringExtra("EXTRACTED_TEXT")
         if (extractedText != null) {
+            // Afișăm textul brut
+            textViewRawText.text = extractedText
+            
+            // Procesăm textul și afișăm rezultatul
             val processedText = processText(extractedText)
             textViewResults.text = processedText
         } else {
+            textViewRawText.text = "Nu s-a extras niciun text."
             textViewResults.text = "Nu s-a extras niciun text."
         }
     }
@@ -82,7 +88,7 @@ class ScanResultActivity : AppCompatActivity() {
         }
 
         // Extrage numele magazinului
-        var storeName = ""  // Inițializăm cu string gol în loc de null
+        var storeName = ""
         for (line in lines) {
             if (line.contains(Regex("\\bS\\.R\\.L\\.\\b|\\bS\\.A\\.\\b", RegexOption.IGNORE_CASE))) {
                 storeName = line.trim()
@@ -96,11 +102,12 @@ class ScanResultActivity : AppCompatActivity() {
         extractedData["store_name"] = storeName
 
         // Extrage codurile de identificare
-        val identificationCodes = Regex("###-Bon-\\d+\\.\\d+\\.\\d+-+#").findAll(normalizedText)
+        val identificationCodes = Regex("#-Bon-\\d+\\.\\d+\\.\\d+-+#").findAll(normalizedText)
             .map { it.value }
             .toList()
         extractedData["identification_codes"] = identificationCodes.toMutableList()
 
+        // Procesează fiecare linie pentru a extrage produsele
         for (line in lines) {
             val cleanedLine = line.trim()
                 .replace(", ", ".")
@@ -108,7 +115,7 @@ class ScanResultActivity : AppCompatActivity() {
                 .replace(" ", "")
 
             val productRegex = Regex(
-                "(\\d+)\\s*(buc|kg|g|q|kq|luc|ka)?\\s*[x×]\\s*(\\d+[.,]?\\d*)\\s*[-=:]\\s*(\\d+[.,]?\\d*)",
+                "(\\d+)\\s*(buc|kg|g|q|kq|luc)?\\s*[x×]\\s*(\\d+[.,]?\\d*)\\s*[-=:]\\s*(\\d+[.,]?\\d*)",
                 RegexOption.IGNORE_CASE
             )
             
@@ -136,7 +143,6 @@ class ScanResultActivity : AppCompatActivity() {
                     }
                 } catch (e: Exception) {
                     // Skip this product if any parsing errors occur
-                    return@let
                 }
             }
         }
