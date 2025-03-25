@@ -1,181 +1,206 @@
 package com.example.myapplicationtmppp.ui.scanner
 
-import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.ui.notifications.NotificationManager
-import com.example.myapplicationtmppp.ui.notifications.NotificationUtils
+import com.example.myapplicationtmppp.ai.DeepseekService
+import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class ScannerFragment : Fragment() {
-
-    private lateinit var imageView: ImageView
-    private lateinit var ocrProcessor: OCRProcessor
-    private var imageUri: Uri? = null
-    private lateinit var notificationUtils: NotificationUtils
+    private val CAMERA_REQUEST_CODE = 1
+    private val GALLERY_REQUEST_CODE = 2
+    private lateinit var currentPhotoPath: String
+    private val deepseekService = DeepseekService()
+    private lateinit var textRecognizer: TextRecognizer
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.scanner_layout, container, false)
-
-        val buttonScan: Button = view.findViewById(R.id.button_scan)
-        val buttonRecentsScan: Button = view.findViewById(R.id.button_recents_scan)
-        imageView = view.findViewById(R.id.imageViewPreview)
-
-        ocrProcessor = OCRProcessor(requireContext())
-        notificationUtils = NotificationUtils(requireContext())
-
-        buttonScan.setOnClickListener { openCamera() }
-        buttonRecentsScan.setOnClickListener {
-            Toast.makeText(requireContext(), "Opening recent scans...", Toast.LENGTH_SHORT).show()
-        }
-
-        return view
+        return inflater.inflate(R.layout.scanner_layout, container, false)
     }
 
-    private fun openCamera() {
-        if (!isAdded) return
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initOCR()
+        setupButtons(view)
+    }
 
-        if (checkCameraPermission()) {
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            val imageFile = createImageFile()
-            imageUri = FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.provider",
-                imageFile
-            )
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            cameraLauncher.launch(takePictureIntent)
-        } else {
-            requestCameraPermission()
+    private fun initOCR() {
+        textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    }
+
+    private fun setupButtons(view: View) {
+        view.findViewById<Button>(R.id.camera_button).setOnClickListener {
+            startCamera()
+        }
+        view.findViewById<Button>(R.id.gallery_button).setOnClickListener {
+            openGallery()
         }
     }
 
-    private val cameraLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                imageUri?.let {
-                    imageView.setImageURI(it)
-                    processCapturedImage(it)
-                } ?: Toast.makeText(requireContext(), "Eroare: Imaginea capturată este null!", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    private fun createImageFile(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_",
-            ".jpg",
-            storageDir
-        ).apply {
-            parentFile?.mkdirs()
-        }
-    }
-
-    private fun processCapturedImage(imageUri: Uri) {
-        try {
-            val image = InputImage.fromFilePath(requireContext(), imageUri)
-            ocrProcessor.processImage(
-                image,
-                onSuccess = { extractedText ->
-                    val intent = Intent(requireContext(), ScanResultActivity::class.java).apply {
-                        putExtra("EXTRACTED_TEXT", extractedText)
-                        putExtra("IMAGE_PATH", imageUri.toString())
-                    }
-                    startActivity(intent)
-
-                    // Salvează notificarea în memoria locală și afișează notificarea
-                    NotificationManager.saveNotification(requireContext(), "Text extras cu succes: $extractedText")
-                    notificationUtils.showNotification("Scanare completă", "Text extras cu succes!")
-                },
-                onFailure = { e ->
-                    // Salvează notificarea de eroare în memoria locală și afișează notificarea
-                    NotificationManager.saveNotification(requireContext(), "Eroare la procesarea imaginii: ${e.message}")
-                    notificationUtils.showNotification("Eroare", "Eroare la procesarea imaginii!")
-                    Toast.makeText(requireContext(), "Eroare la procesarea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
+    private fun startCamera() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { intent ->
+            intent.resolveActivity(requireActivity().packageManager)?.also {
+                createImageFile()?.let { file ->
+                    val photoURI = FileProvider.getUriForFile(
+                        requireContext(),
+                        "com.example.myapplicationtmppp.fileprovider",
+                        file
+                    )
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE)
                 }
-            )
-        } catch (e: IOException) {
-            NotificationManager.saveNotification(requireContext(), "Eroare la citirea imaginii: ${e.message}")
-            notificationUtils.showNotification("Eroare", "Eroare la citirea imaginii!")
-            e.printStackTrace()
-            Toast.makeText(requireContext(), "Eroare la citirea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-
-
-    private fun checkCameraPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestCameraPermission() {
-        requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openCamera()
-            } else {
-                Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    companion object {
-        private const val CAMERA_PERMISSION_CODE = 100
+    private fun createImageFile(): File? {
+        return try {
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val storageDir = requireContext().getExternalFilesDir(null)
+            File.createTempFile(
+                "JPEG_${timeStamp}_",
+                ".jpg",
+                storageDir
+            ).apply {
+                currentPhotoPath = absolutePath
+            }
+        } catch (ex: IOException) {
+            null
+        }
     }
-}
 
-class OCRProcessor(context: Context) {
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private fun openGallery() {
+        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).also {
+            it.type = "image/*"
+            startActivityForResult(it, GALLERY_REQUEST_CODE)
+        }
+    }
 
-    fun processImage(
-        image: InputImage,
-        onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        recognizer.process(image)
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                CAMERA_REQUEST_CODE -> processImage(Uri.fromFile(File(currentPhotoPath)))
+                GALLERY_REQUEST_CODE -> data?.data?.let { processImage(it) }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun processImage(imageUri: Uri) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val bitmap = loadBitmap(imageUri)
+                bitmap?.let {
+                    recognizeText(it) { extractedText ->
+                        sendToDeepseek(extractedText, imageUri)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showError("Eroare procesare imagine: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private suspend fun loadBitmap(uri: Uri): Bitmap? = withContext(Dispatchers.IO) {
+        return@withContext try {
+            requireContext().contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun recognizeText(bitmap: Bitmap, callback: (String) -> Unit) {
+        val image = InputImage.fromBitmap(bitmap, 0)
+        textRecognizer.process(image)
             .addOnSuccessListener { visionText ->
-                onSuccess(visionText.text)
+                callback(processVisionText(visionText))
             }
             .addOnFailureListener { e ->
-                onFailure(e)
+                showError("Eroare OCR: ${e.message}")
             }
     }
 
-    fun close() {
-        recognizer.close()
+    private fun processVisionText(visionText: Text): String {
+        return buildString {
+            for (block in visionText.textBlocks) {
+                append(block.text)
+                append("\n")
+            }
+        }
+    }
+
+    private fun sendToDeepseek(text: String, imageUri: Uri) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = deepseekService.sendReceiptForAnalysis(text)
+                withContext(Dispatchers.Main) {
+                    navigateToResults(imageUri.toString(), response)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showError("Eroare API: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private fun navigateToResults(imagePath: String, response: String) {
+        Intent(requireContext(), ScanResultActivity::class.java).apply {
+            putExtra("IMAGE_PATH", imagePath)
+            putExtra("DEEPSEEK_RESPONSE", response)
+            startActivity(this)
+        }
+    }
+
+    private fun showError(message: String?) {
+        Toast.makeText(
+            context,
+            message ?: "Eroare necunoscută",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        textRecognizer.close()
     }
 }

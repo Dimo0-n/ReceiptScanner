@@ -18,7 +18,6 @@
         android:required="false" />
 
     <application
-        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -32,7 +31,7 @@
         <!-- Configurație FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -52,6 +51,10 @@
         <activity
             android:name=".ui.notifications.NotificationSettingsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.notifications.NotificationSettingsActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".ui.RegisterActivity"

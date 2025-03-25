@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary">#6200EE</color>  <!-- Change this to the color you want -->
+    <color name="json_highlight">#4CAF50</color>
 </resources>

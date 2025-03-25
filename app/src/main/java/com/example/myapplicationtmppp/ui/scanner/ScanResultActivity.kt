@@ -1,110 +1,122 @@
 package com.example.myapplicationtmppp.ui.scanner
 
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.method.ScrollingMovementMethod
+import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.myapplicationtmppp.R
-import com.example.myapplicationtmppp.ui.scanner.api.ApiService
-import com.example.myapplicationtmppp.ui.scanner.api.ExtractProductsRequest
-import com.example.myapplicationtmppp.ui.scanner.api.ExtractProductsResponse
-import com.example.myapplicationtmppp.ui.scanner.api.Product
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 class ScanResultActivity : AppCompatActivity() {
-
-    private lateinit var apiService: ApiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_result)
 
-        // Inițializează Retrofit
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.2:5000/")  // Folosește 10.0.2.2 pentru localhost în emulator
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        val imageUriString = intent.getStringExtra("IMAGE_PATH")
+        val deepseekResponse = intent.getStringExtra("DEEPSEEK_RESPONSE")
 
-        apiService = retrofit.create(ApiService::class.java)
+        displayImage(imageUriString)
+        processAndDisplayResponse(deepseekResponse)
+    }
 
-        // Inițializează componentele UI
-        val imageView: ImageView = findViewById(R.id.imageViewResult)
-        val textViewResults: TextView = findViewById(R.id.textViewResults)
-
-        // Afișează imaginea capturată
-        val imagePath = intent.getStringExtra("IMAGE_PATH")
-        if (imagePath != null) {
-            val imageUri = Uri.parse(imagePath)
-            try {
-                val inputStream = contentResolver.openInputStream(imageUri)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-                imageView.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                imageView.setImageResource(R.drawable.placeholder)
-            }
-        } else {
-            imageView.setImageResource(R.drawable.placeholder)
-        }
-
-        // Afișează textul extras și trimite-l la serverul Flask
-        val extractedText = intent.getStringExtra("EXTRACTED_TEXT")
-        if (extractedText != null) {
-            // Trimite textul la serverul Flask
-            sendTextToServer(extractedText, textViewResults)
-        } else {
-            textViewResults.text = "Nu s-a extras niciun text."
+    private fun displayImage(uriString: String?) {
+        uriString?.let {
+            findViewById<ImageView>(R.id.imageViewResult).setImageURI(Uri.parse(it))
         }
     }
 
-    // Trimite textul la serverul Flask și afișează răspunsul
-    private fun sendTextToServer(extractedText: String, textViewResults: TextView) {
-        val request = ExtractProductsRequest(extractedText)
-        val call = apiService.extractProducts(request)
+    private fun processAndDisplayResponse(response: String?) {
+        val resultTextView = findViewById<TextView>(R.id.textViewResults).apply {
+            movementMethod = ScrollingMovementMethod.getInstance()
+            typeface = android.graphics.Typeface.MONOSPACE
+        }
 
-        call.enqueue(object : Callback<ExtractProductsResponse> {
-            override fun onResponse(
-                call: Call<ExtractProductsResponse>,
-                response: Response<ExtractProductsResponse>
-            ) {
-                if (response.isSuccessful) {
-                    val products = response.body()?.products
-                    if (products != null) {
-                        // Formatează lista de produse pentru afișare
-                        val formattedText = buildString {
-                            append("Text extras:\n")
-                            append(extractedText)
-                            append("\n\nLista de produse:\n")
-                            append(formatProductList(products))
-                        }
+        try {
+            response?.let {
+                val jsonResponse = JSONObject(it)
+                val content = jsonResponse
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
 
-                        // Afișează textul în TextView
-                        textViewResults.text = formattedText
-                    } else {
-                        textViewResults.text = "Nu s-au găsit produse în textul extras."
-                    }
-                } else {
-                    textViewResults.text = "Eroare la comunicarea cu serverul."
+                val formattedJson = try {
+                    formatJsonString(content)
+                } catch (e: JSONException) {
+                    "Invalid JSON format: ${e.message}\n\nRaw content:\n$content"
                 }
-            }
 
-            override fun onFailure(call: Call<ExtractProductsResponse>, t: Throwable) {
-                textViewResults.text = "Eroare de rețea: ${t.message}"
+                resultTextView.text = formattedJson
+            } ?: run {
+                resultTextView.text = "No response data available"
             }
-        })
+        } catch (e: Exception) {
+            resultTextView.text = "Error parsing response: ${e.message}\n\nRaw response:\n$response"
+        }
     }
 
-    // Formatează lista de produse pentru afișare
-    private fun formatProductList(products: List<Product>): String {
-        return products.joinToString("\n") {
-            "${it.product}: ${it.quantity} ${it.unit ?: ""} x ${it.unit_price} = ${it.total_price} LEI"
+    private fun formatJsonString(jsonString: String): SpannableStringBuilder {
+        return try {
+            val json = JSONObject(jsonString)
+            val formatted = StringBuilder()
+            formatJson(json, formatted, 0)
+
+            val colorSpan = ForegroundColorSpan(
+                ContextCompat.getColor(this, R.color.json_highlight)
+            )
+
+            SpannableStringBuilder(formatted.toString()).apply {
+                setSpan(colorSpan, 0, length, 0)
+            }
+        } catch (e: JSONException) {
+            throw JSONException("Invalid JSON structure: ${e.message}")
         }
+    }
+
+    private fun formatJson(obj: Any?, result: StringBuilder, indentLevel: Int) {
+        when (obj) {
+            is JSONObject -> {
+                result.append("{\n")
+                val keys = obj.keys()
+                var first = true
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    if (!first) result.append(",\n")
+                    appendIndent(result, indentLevel + 1)
+                    result.append("\"$key\": ")
+                    formatJson(obj[key], result, indentLevel + 1)
+                    first = false
+                }
+                result.append("\n")
+                appendIndent(result, indentLevel)
+                result.append("}")
+            }
+            is JSONArray -> {
+                result.append("[\n")
+                for (i in 0 until obj.length()) {
+                    if (i > 0) result.append(",\n")
+                    appendIndent(result, indentLevel + 1)
+                    formatJson(obj[i], result, indentLevel + 1)
+                }
+                result.append("\n")
+                appendIndent(result, indentLevel)
+                result.append("]")
+            }
+            is String -> result.append("\"${obj}\"")
+            else -> result.append(obj)
+        }
+    }
+
+    private fun appendIndent(sb: StringBuilder, indentLevel: Int) {
+        repeat(indentLevel * 4) { sb.append(' ') }
     }
 }
