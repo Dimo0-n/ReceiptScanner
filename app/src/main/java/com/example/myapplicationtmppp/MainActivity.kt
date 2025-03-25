@@ -36,6 +36,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 🔹 Initialize Firebase Authentication
+        auth = FirebaseAuth.getInstance()
+
+        // 🔹 Check if user is logged in
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            // If the user is not logged in, redirect to the LoginActivity
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()  // Close the MainActivity
+        }
+
+        // 🔹 Set up View Binding
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // 🔹 Set up Action Bar
         
         // Initialize view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -127,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            finish()
+            finish()  // Close the MainActivity after logout
         }
     }
 
