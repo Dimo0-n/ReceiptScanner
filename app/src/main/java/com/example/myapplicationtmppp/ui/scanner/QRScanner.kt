@@ -1,4 +1,4 @@
-package com.example.myapplicationtmppp.imageprocessing
+package com.example.myapplicationtmppp.ui.scanner
 
 import android.graphics.Bitmap
 import android.util.Log

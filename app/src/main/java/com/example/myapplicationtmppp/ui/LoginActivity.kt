@@ -8,6 +8,8 @@ import com.example.myapplicationtmppp.MainActivity
 import com.example.myapplicationtmppp.ui.AdminActivity
 import com.example.myapplicationtmppp.ui.OperatorActivity
 import com.example.myapplicationtmppp.databinding.ActivityLoginBinding
+import com.example.myapplicationtmppp.MainActivity
+import com.example.myapplicationtmppp.auth.AuthManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

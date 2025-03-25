@@ -20,6 +20,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
+import com.example.myapplicationtmppp.ui.notifications.NotificationManager
+import com.example.myapplicationtmppp.ui.notifications.NotificationUtils
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -34,6 +36,7 @@ class ScannerFragment : Fragment() {
     private lateinit var imageView: ImageView
     private lateinit var ocrProcessor: OCRProcessor
     private var imageUri: Uri? = null
+    private lateinit var notificationUtils: NotificationUtils
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -45,6 +48,7 @@ class ScannerFragment : Fragment() {
         imageView = view.findViewById(R.id.imageViewPreview)
 
         ocrProcessor = OCRProcessor(requireContext())
+        notificationUtils = NotificationUtils(requireContext())
 
         buttonScan.setOnClickListener { openCamera() }
         buttonRecentsScan.setOnClickListener {
@@ -90,7 +94,6 @@ class ScannerFragment : Fragment() {
             ".jpg",
             storageDir
         ).apply {
-            // Asigură-te că directorul există
             parentFile?.mkdirs()
         }
     }
@@ -103,19 +106,29 @@ class ScannerFragment : Fragment() {
                 onSuccess = { extractedText ->
                     val intent = Intent(requireContext(), ScanResultActivity::class.java).apply {
                         putExtra("EXTRACTED_TEXT", extractedText)
-                        putExtra("IMAGE_PATH", imageUri.toString()) // Trimite URI-ul imaginii
+                        putExtra("IMAGE_PATH", imageUri.toString())
                     }
                     startActivity(intent)
+
+                    // Salvează notificarea în memoria locală și afișează notificarea
+                    NotificationManager.saveNotification(requireContext(), "Text extras cu succes: $extractedText")
+                    notificationUtils.showNotification("Scanare completă", "Text extras cu succes!")
                 },
                 onFailure = { e ->
+                    // Salvează notificarea de eroare în memoria locală și afișează notificarea
+                    NotificationManager.saveNotification(requireContext(), "Eroare la procesarea imaginii: ${e.message}")
+                    notificationUtils.showNotification("Eroare", "Eroare la procesarea imaginii!")
                     Toast.makeText(requireContext(), "Eroare la procesarea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             )
         } catch (e: IOException) {
+            NotificationManager.saveNotification(requireContext(), "Eroare la citirea imaginii: ${e.message}")
+            notificationUtils.showNotification("Eroare", "Eroare la citirea imaginii!")
             e.printStackTrace()
             Toast.makeText(requireContext(), "Eroare la citirea imaginii: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
+
 
     private fun checkCameraPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
