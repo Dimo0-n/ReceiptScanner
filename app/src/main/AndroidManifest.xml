@@ -47,6 +47,16 @@
             android:name=".ui.LoginActivity"
             android:exported="false" />
 
+        <!-- Admin Activity -->
+        <activity
+            android:name=".ui.AdminActivity"
+            android:exported="true" />
+
+        <!-- Operator Activity -->
+        <activity
+            android:name=".ui.OperatorActivity"
+            android:exported="true" />
+
         <!-- Main Activity, set to singleTop to avoid multiple instances -->
         <activity
             android:name=".MainActivity"

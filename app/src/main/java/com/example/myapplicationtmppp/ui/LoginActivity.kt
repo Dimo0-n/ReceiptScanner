@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplicationtmppp.MainActivity
+import com.example.myapplicationtmppp.ui.AdminActivity
+import com.example.myapplicationtmppp.ui.OperatorActivity
 import com.example.myapplicationtmppp.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -44,10 +47,32 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // If login is successful, show a message and redirect to MainActivity
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
+                        // If login is successful, fetch user role from Firestore
+                        val user = auth.currentUser
+                        val db = FirebaseFirestore.getInstance()
+
+                        // Fetch user role from Firestore
+                        db.collection("users").document(user!!.uid).get()
+                            .addOnSuccessListener { document ->
+                                val role = document.getString("role")
+
+                                // Redirect to different activity based on the role
+                                when (role) {
+                                    "admin" -> {
+                                        startActivity(Intent(this, AdminActivity::class.java))
+                                    }
+                                    "operator" -> {
+                                        startActivity(Intent(this, OperatorActivity::class.java))
+                                    }
+                                    else -> {
+                                        startActivity(Intent(this, MainActivity::class.java))
+                                    }
+                                }
+                                finish()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     } else {
                         // Show error message if login failed
                         Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
