@@ -1,4 +1,4 @@
-package com.example.myapplicationtmppp.ui
+package com.example.myapplicationtmppp
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,8 +15,6 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myapplicationtmppp.ui.LoginActivity
 
-
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -26,12 +24,22 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 🔹 Initialize Firebase Authentication
+        auth = FirebaseAuth.getInstance()
+
+        // 🔹 Check if user is logged in
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            // If the user is not logged in, redirect to the LoginActivity
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()  // Close the MainActivity
+        }
+
         // 🔹 Set up View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // 🔹 Initialize Firebase Authentication
-        auth = FirebaseAuth.getInstance()
 
         // 🔹 Set up Action Bar
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -58,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
-            finish()
+            finish()  // Close the MainActivity after logout
         }
     }
 
