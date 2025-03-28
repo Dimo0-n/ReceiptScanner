@@ -11,4 +11,6 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_scanner">Scanner Receipt</string>
     <string name="action_notifications">Notificări</string>
+    <string name="monthly_total_format">Total for %1$s: %2$.2f</string>
+    <string name="view_expenses">Monthly Expenses</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.myapplicationtmppp
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -13,15 +14,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.example.myapplicationtmppp.ui.LoginActivity
 import com.example.myapplicationtmppp.databinding.ActivityMainBinding
+import com.example.myapplicationtmppp.expenses.MonthlyExpensesActivity
 import com.example.myapplicationtmppp.ui.notifications.GmailSender
 import com.example.myapplicationtmppp.ui.notifications.NotificationActivity
 import com.example.myapplicationtmppp.ui.notifications.NotificationSettingsActivity
@@ -32,17 +33,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
+    companion object {
+        lateinit var appContext: Context
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appContext = applicationContext
         
         // Initialize view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Initialize Firebase Authentication
-        auth = FirebaseAuth.getInstance()
 
         // Set up the toolbar
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -56,8 +57,13 @@ class MainActivity : AppCompatActivity() {
         // Set up notifications
         setupNotifications()
 
-        // Set up logout button
-        setupLogoutButton()
+    }
+
+    private fun setupExpensesButton() {
+        // Access the button through the binding
+        binding.appBarMain.btnViewExpenses.setOnClickListener {
+            startActivity(Intent(this, MonthlyExpensesActivity::class.java))
+        }
     }
 
     private fun requestPermissions() {
@@ -90,12 +96,30 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_home, R.id.nav_gallery, R.id.nav_scanner),
+            setOf(R.id.nav_home, R.id.nav_gallery, R.id.nav_scanner, R.id.nav_expenses),
             drawerLayout
         )
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Add this to handle the expenses item click
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_expenses -> {
+                    startActivity(Intent(this, MonthlyExpensesActivity::class.java))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                else -> {
+                    // Default navigation handling
+                    menuItem.isChecked = true
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    navController.navigate(menuItem.itemId)
+                    true
+                }
+            }
+        }
     }
 
     private fun setupNotifications() {
@@ -119,16 +143,6 @@ class MainActivity : AppCompatActivity() {
                 "Aceasta este o notificare prin SMS."
             )
         }, 180_000)
-    }
-
-    private fun setupLogoutButton() {
-        binding.appBarMain.logoutButton.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
     }
 
     private fun sendEmailAfterDelay() {
@@ -169,6 +183,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, NotificationActivity::class.java))
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

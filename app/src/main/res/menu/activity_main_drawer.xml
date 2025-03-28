@@ -18,5 +18,11 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_gallery" />
 
+        <item
+            android:id="@+id/nav_expenses"
+            android:icon="@drawable/ic_close"
+            android:title="@string/view_expenses" />
+
+
     </group>
 </menu>

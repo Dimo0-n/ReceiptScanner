@@ -3,7 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") // ✅ Firebase services
+//    id("com.google.gms.google-services") // ✅ Firebase services
 }
 
 android {
@@ -103,10 +103,10 @@ dependencies {
     implementation("com.rmtheis:tess-two:9.1.0")
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
-    // ✅ Firebase
-    implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
-    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+//    // ✅ Firebase
+//    implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
+//    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+//    implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
 
     // ✅ PDF Processing
     implementation("com.itextpdf:itextpdf:5.5.13.4")

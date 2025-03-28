@@ -8,12 +8,17 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.myapplicationtmppp.R
+import com.example.myapplicationtmppp.data.ExpenseData
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ScanResultActivity : AppCompatActivity() {
 
@@ -50,6 +55,10 @@ class ScanResultActivity : AppCompatActivity() {
                     .getString("content")
 
                 val formattedJson = try {
+                    // Try to parse the content as JSON
+                    val receiptJson = JSONObject(content)
+                    // Save the total amount to global storage
+                    saveExpenseData(receiptJson)
                     formatJsonString(content)
                 } catch (e: JSONException) {
                     "Invalid JSON format: ${e.message}\n\nRaw content:\n$content"
@@ -62,6 +71,40 @@ class ScanResultActivity : AppCompatActivity() {
         } catch (e: Exception) {
             resultTextView.text = "Error parsing response: ${e.message}\n\nRaw response:\n$response"
         }
+    }
+
+    private fun saveExpenseData(receiptJson: JSONObject) {
+        try {
+            val storeName = receiptJson.optString("store_name", "Unknown Store")
+            val totalAmount = receiptJson.optDouble("total_amount", 0.0)
+            val dateString = receiptJson.optString("date", getCurrentDate())
+
+            // Salvează cheltuiala și actualizează totalul lunar
+            ExpenseData.addExpense(
+                storeName = storeName,
+                amount = totalAmount,
+                date = dateString
+            )
+
+            // Afișează totalul curent (pentru debug)
+            val currentMonthTotal = ExpenseData.getCurrentMonthTotal()
+            Log.d("ExpenseData", "Total curent pentru luna: $currentMonthTotal")
+
+            // Poți afișa un Toast cu suma acumulată
+            Toast.makeText(
+                this,
+                "Total lună curentă: ${String.format("%.2f", currentMonthTotal)} RON",
+                Toast.LENGTH_SHORT
+            ).show()
+
+        } catch (e: Exception) {
+            Log.e("ExpenseData", "Error saving expense data", e)
+        }
+    }
+
+    private fun getCurrentDate(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return sdf.format(Date())
     }
 
     private fun formatJsonString(jsonString: String): SpannableStringBuilder {

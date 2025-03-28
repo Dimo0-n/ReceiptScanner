@@ -1,25 +1,32 @@
 package com.example.myapplicationtmppp.ui.scanner
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.myapplicationtmppp.R
 import com.example.myapplicationtmppp.ai.DeepseekService
 import com.google.android.gms.tasks.Task
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -43,6 +50,25 @@ class ScannerFragment : Fragment() {
     private val deepseekService = DeepseekService()
     private lateinit var textRecognizer: TextRecognizer
 
+    // Contract pentru cererea permisiunii CAMERA
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startCamera()
+        } else {
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                showPermissionDeniedDialog()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Permisiunea camerei este necesară pentru a captura imagini",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,11 +89,57 @@ class ScannerFragment : Fragment() {
 
     private fun setupButtons(view: View) {
         view.findViewById<Button>(R.id.camera_button).setOnClickListener {
-            startCamera()
+            checkCameraPermission()
         }
         view.findViewById<Button>(R.id.gallery_button).setOnClickListener {
             openGallery()
         }
+    }
+
+    private fun checkCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startCamera()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                showPermissionRationaleDialog()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun showPermissionRationaleDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Permisiune necesară")
+            .setMessage("Aplicația are nevoie de acces la cameră pentru a captura imagini. Permisiunea va fi folosită doar în acest scop.")
+            .setPositiveButton("OK") { _, _ ->
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+            .setNegativeButton("Anulează", null)
+            .show()
+    }
+
+    private fun showPermissionDeniedDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Permisiune respinsă")
+            .setMessage("Ai respins permisiunea permanent. Pentru a utiliza camera, te rugăm să o activezi manual în setări.")
+            .setPositiveButton("Setări") { _, _ ->
+                openAppSettings()
+            }
+            .setNegativeButton("Anulează", null)
+            .show()
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri = Uri.fromParts("package", requireActivity().packageName, null)
+        intent.data = uri
+        startActivity(intent)
     }
 
     private fun startCamera() {
@@ -76,29 +148,33 @@ class ScannerFragment : Fragment() {
                 createImageFile()?.let { file ->
                     val photoURI = FileProvider.getUriForFile(
                         requireContext(),
-                        "com.example.myapplicationtmppp.fileprovider",
+                        "${requireContext().packageName}.fileprovider",
                         file
                     )
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     startActivityForResult(intent, CAMERA_REQUEST_CODE)
                 }
+            } ?: run {
+                Toast.makeText(
+                    requireContext(),
+                    "Nu s-a putut deschide camera",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
-    private fun createImageFile(): File? {
-        return try {
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val storageDir = requireContext().getExternalFilesDir(null)
-            File.createTempFile(
-                "JPEG_${timeStamp}_",
-                ".jpg",
-                storageDir
-            ).apply {
-                currentPhotoPath = absolutePath
-            }
-        } catch (ex: IOException) {
-            null
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        return File.createTempFile(
+            "JPEG_${timeStamp}_",
+            ".jpg",
+            storageDir
+        ).apply {
+            currentPhotoPath = absolutePath
         }
     }
 
