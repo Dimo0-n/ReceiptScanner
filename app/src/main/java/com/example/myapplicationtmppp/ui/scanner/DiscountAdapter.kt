@@ -24,7 +24,7 @@ class DiscountAdapter(private val discounts: List<ScanResultActivity.Discount>) 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val discount = discounts[position]
         holder.tvType.text = discount.type
-        holder.tvAmount.text = "-${"%.2f".format(discount.amount)} RON"
+        holder.tvAmount.text = "-${"%.2f".format(discount.amount)} LEI"
     }
 
     override fun getItemCount() = discounts.size

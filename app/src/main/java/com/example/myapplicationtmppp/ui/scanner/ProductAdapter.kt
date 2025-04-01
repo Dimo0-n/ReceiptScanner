@@ -28,12 +28,16 @@ class ProductAdapter(private val products: List<ScanResultActivity.Product>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val product = products[position]
         holder.tvName.text = product.name
-        holder.tvQuantity.text = "Cant: ${product.quantity} ${product.unit}"
-        holder.tvPrice.text = "Preț: ${"%.2f".format(product.unitPrice)} RON"
-        holder.tvTotal.text = "Total: ${"%.2f".format(product.totalPrice)} RON"
+        
+        val quantityText = if (product.unit.isBlank() || product.unit == "null") {
+            "Cant: ${product.quantity}"
+        } else {
+            "Cant: ${product.quantity} ${product.unit}"
+        }
+        holder.tvQuantity.text = quantityText
 
-        // Log pentru fiecare produs
-        Log.d("PRODUCT_ITEM", "Produs $position: ${product.name}")
+        holder.tvPrice.text = "Preț: ${"%.2f".format(product.unitPrice)} LEI"
+        holder.tvTotal.text = "Total: ${"%.2f".format(product.totalPrice)} LEI"
     }
 
     override fun getItemCount(): Int {

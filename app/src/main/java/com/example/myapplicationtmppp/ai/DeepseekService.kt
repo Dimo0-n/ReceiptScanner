@@ -55,7 +55,8 @@ class DeepseekService {
 
     private fun createAnalysisPrompt(text: String): String {
         return """
-            Analizează textul unui bon fiscal și returnează date structurate în JSON. 
+            Analizează textul unui bon fiscal și returnează date structurate în JSON.
+            IMPORTANT.Toate cuvintele din json-ul intors trebuie sa fie scrie corect gramatical in limba romana
             Text extras OCR:
             ```
             $text

@@ -33,7 +33,7 @@ class ScanResultActivity : AppCompatActivity() {
         @SerializedName("total_amount") val total: Double,
         @SerializedName("products") val products: List<Product>,
         @SerializedName("discounts") val discounts: List<Discount>,
-        val currency: String = "RON"
+        val currency: String = "LEI"
     )
 
     data class Product(
@@ -41,13 +41,13 @@ class ScanResultActivity : AppCompatActivity() {
         @SerializedName("quantity") val quantity: Double,
         @SerializedName("unit_price") val unitPrice: Double,
         @SerializedName("total_price") val totalPrice: Double,
-        val unit: String = "buc"
+        val unit: String = ""
     )
 
     data class Discount(
         @SerializedName("type") val type: String,
         @SerializedName("amount") val amount: Double,
-        val currency: String = "RON"
+        val currency: String = "LEI"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +188,10 @@ class ScanResultActivity : AppCompatActivity() {
         container.removeAllViews()
 
         if (discounts.isEmpty()) {
-            container.addView(createInfoView("🎉 Nu există reduceri aplicabile"))
+            // Afișează "0 Lei reducere" când nu există reduceri
+            container.addView(createDiscountView(
+                Discount(type = "Reducere", amount = 0.0, currency = "LEI")
+            ))
         } else {
             discounts.forEach { discount ->
                 container.addView(createDiscountView(discount))
@@ -196,21 +199,18 @@ class ScanResultActivity : AppCompatActivity() {
         }
     }
 
-    private fun createInfoView(text: String): TextView {
-        return TextView(this).apply {
-            this.text = text
-            setTextColor(ContextCompat.getColor(context, R.color.white))
-            textSize = 14f
-            setPadding(0, 16.dpToPx(), 0, 16.dpToPx())
-            gravity = Gravity.CENTER
-        }
-    }
-
     private fun createDiscountView(discount: Discount): View {
         return LayoutInflater.from(this).inflate(R.layout.item_discount, null).apply {
             findViewById<TextView>(R.id.tvDiscountType).text = discount.type
-            findViewById<TextView>(R.id.tvDiscountAmount).text =
+
+            // Afișează "0 Lei" dacă reducerea este 0, altfel afișează valoarea cu minus
+            val amountText = if (discount.amount == 0.0) {
+                "0 ${discount.currency}"
+            } else {
                 "-${"%.2f".format(discount.amount)} ${discount.currency}"
+            }
+
+            findViewById<TextView>(R.id.tvDiscountAmount).text = amountText
         }
     }
 
@@ -242,8 +242,8 @@ class ScanResultActivity : AppCompatActivity() {
             val product = products[position]
             holder.tvName.text = product.name
             holder.tvQuantity.text = "Cant: ${product.quantity} ${product.unit}"
-            holder.tvPrice.text = "Preț: ${"%.2f".format(product.unitPrice)} RON"
-            holder.tvTotal.text = "Total: ${"%.2f".format(product.totalPrice)} RON"
+            holder.tvPrice.text = "Preț: ${"%.2f".format(product.unitPrice)} LEI"
+            holder.tvTotal.text = "Total: ${"%.2f".format(product.totalPrice)} LEI"
         }
 
         override fun getItemCount(): Int = products.size
