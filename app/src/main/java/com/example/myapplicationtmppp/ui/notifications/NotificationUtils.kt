@@ -51,6 +51,10 @@ class NotificationUtils(private val context: Context) {
         val emailEnabled = sharedPreferences.getBoolean("email_enabled", false)
         val smsEnabled = sharedPreferences.getBoolean("sms_enabled", false)
 
+        // Save the notification first
+        val fullNotification = "$title: $message"
+        NotificationStorage.saveNotification(context, fullNotification)
+
         if (pushEnabled) {
             sendPushNotification(title, message)
         }
