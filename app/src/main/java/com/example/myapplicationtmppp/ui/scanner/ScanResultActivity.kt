@@ -220,7 +220,7 @@ class ScanResultActivity : AppCompatActivity() {
             append("🏬 ${data.storeName}\n")
             append("Data📅 ${data.date}\n")
             append("Bon🆔 ${data.cecNumber}\n")
-            append("💵 Total: ${"%.2f".format(data.total)} ${data.currency}")
+            append("💵 Total: ${"%.2f".format(data.total)} + LEI")
         }
     }
 
@@ -272,7 +272,7 @@ class ScanResultActivity : AppCompatActivity() {
             val amountText = if (discount.amount == 0.0) {
                 "0 ${discount.currency}"
             } else {
-                "-${"%.2f".format(discount.amount)} ${discount.currency}"
+                "-${"%.2f".format(discount.amount)} + LEI"
             }
 
             findViewById<TextView>(R.id.tvDiscountAmount).text = amountText
