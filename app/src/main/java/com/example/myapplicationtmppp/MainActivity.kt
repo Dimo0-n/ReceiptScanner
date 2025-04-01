@@ -38,17 +38,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // 🔹 Initialize Firebase Authentication
-        auth = FirebaseAuth.getInstance()
+        //auth = FirebaseAuth.getInstance()
 
         // 🔹 Check if user is logged in
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            // If the user is not logged in, redirect to the LoginActivity
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()  // Close the MainActivity
-        }
+//        val currentUser = auth.currentUser
+//        if (currentUser == null) {
+//            // If the user is not logged in, redirect to the LoginActivity
+//            val intent = Intent(this, LoginActivity::class.java)
+//            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            startActivity(intent)
+//            finish()  // Close the MainActivity
+//        }
 
         // 🔹 Set up View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)

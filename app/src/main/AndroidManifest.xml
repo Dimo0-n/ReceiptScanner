@@ -53,10 +53,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.notifications.NotificationSettingsActivity"
-            android:exported="false"/>
-
-        <activity
             android:name=".ui.RegisterActivity"
             android:exported="false" />
 

@@ -21,11 +21,12 @@ object NotificationStorage {
         editor.apply()
     }
 
-    fun getNotifications(context: Context): List<String> {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    // NotificationStorage.kt
+    fun getNotifications(context: Context): MutableList<String> {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val json = sharedPreferences.getString(NOTIFICATIONS_KEY, "[]")
-        val type = object : TypeToken<List<String>>() {}.type
-        return Gson().fromJson(json, type) ?: emptyList()
+        val type = object : TypeToken<MutableList<String>>() {}.type // Schimbă tipul la MutableList
+        return Gson().fromJson(json, type) ?: mutableListOf() // Folosește mutableListOf
     }
 
     fun clearNotifications(context: Context) {
