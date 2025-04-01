@@ -1,5 +1,6 @@
 package com.example.myapplicationtmppp.ui.scanner
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,12 +11,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplicationtmppp.R
+import com.example.myapplicationtmppp.ui.game.GamificationActivity
+import com.example.myapplicationtmppp.ui.game.SavingsGameManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
@@ -50,6 +55,7 @@ class ScanResultActivity : AppCompatActivity() {
         val currency: String = "LEI"
     )
 
+    private val savingsGameManager by lazy { SavingsGameManager(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_result)
@@ -59,6 +65,13 @@ class ScanResultActivity : AppCompatActivity() {
 
         displayImage(imageUriString)
         processReceiptData(deepseekResponse)
+        findViewById<FloatingActionButton>(R.id.fabGameProgress).setOnClickListener {
+            // Pornește activitatea de gamificare
+            startActivity(Intent(this, GamificationActivity::class.java))
+
+            // Opțional: animație de tranziție
+            overridePendingTransition(R.anim.slide_in_up, R.anim.fade_out)
+        }
     }
 
     private fun displayImage(uriString: String?) {
@@ -104,6 +117,14 @@ class ScanResultActivity : AppCompatActivity() {
                 return
             }
 
+            val (progress, newBadge) = savingsGameManager.updateProgress(receiptData.total)
+
+            // Afișează progresul în UI
+            displayGamificationProgress(progress)
+
+            // Arată notificare pentru noua insignă (dacă există)
+            newBadge?.let { showBadgeNotification(it) }
+
             // Afișare succes
             displayStoreInfo(receiptData)
             displayProducts(receiptData.products)
@@ -115,6 +136,50 @@ class ScanResultActivity : AppCompatActivity() {
             showError("Eroare neașteptată: ${e.message ?: "contactați dezvoltatorul"}",
                 findViewById(R.id.errorCard),
                 findViewById(R.id.tvErrorMessage))
+        }
+    }
+
+    private fun showBadgeNotification(badge: SavingsGameManager.Badge) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Felicitări! 🎉")
+            .setMessage("Ai câștigat insigna: **${badge.name}**\n${badge.description}")
+            .setPositiveButton("OK", null)
+            .setIcon(badge.iconResId)
+            .create()
+
+        dialog.setOnShowListener {
+            // Animație de scalare
+            val iconView = dialog.findViewById<ImageView>(android.R.id.icon)!!
+            iconView.scaleX = 0f
+            iconView.scaleY = 0f
+            iconView.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(500)
+                .start()
+        }
+        dialog.show()
+    }
+
+    private fun displayGamificationProgress(progress: SavingsGameManager.UserProgress) {
+        findViewById<TextView>(R.id.tvTotalSaved)?.text =
+            "Total economisit: ${"%.2f".format(progress.totalSaved)} LEI"
+
+        findViewById<TextView>(R.id.tvLevel)?.text =
+            "Nivel: ${progress.level}"
+
+        val badgesContainer = findViewById<LinearLayout>(R.id.containerBadges)
+        badgesContainer?.removeAllViews()
+
+        progress.badges.forEach { badge ->
+            ImageView(this).apply {
+                setImageResource(badge.iconResId)
+                layoutParams = LinearLayout.LayoutParams(
+                    64.dpToPx(),
+                    64.dpToPx()
+                ).apply { marginEnd = 8.dpToPx() }
+                contentDescription = badge.name
+            }.let { badgesContainer?.addView(it) }
         }
     }
 
@@ -241,7 +306,7 @@ class ScanResultActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val product = products[position]
             holder.tvName.text = product.name
-            holder.tvQuantity.text = "Cant: ${product.quantity} ${product.unit}"
+            holder.tvQuantity.text = "Cant: ${product.quantity}"
             holder.tvPrice.text = "Preț: ${"%.2f".format(product.unitPrice)} LEI"
             holder.tvTotal.text = "Total: ${"%.2f".format(product.totalPrice)} LEI"
         }
