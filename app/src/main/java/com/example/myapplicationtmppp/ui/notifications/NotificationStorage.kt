@@ -25,8 +25,8 @@ object NotificationStorage {
     fun getNotifications(context: Context): MutableList<String> {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val json = sharedPreferences.getString(NOTIFICATIONS_KEY, "[]")
-        val type = object : TypeToken<MutableList<String>>() {}.type // Schimbă tipul la MutableList
-        return Gson().fromJson(json, type) ?: mutableListOf() // Folosește mutableListOf
+        val type = object : TypeToken<MutableList<String>>() {}.type
+        return Gson().fromJson(json, type) ?: mutableListOf()
     }
 
     fun clearNotifications(context: Context) {
