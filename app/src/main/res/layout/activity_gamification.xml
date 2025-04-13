@@ -133,5 +133,16 @@
                 android:layout_marginTop="8dp"
                 android:orientation="vertical"/>
         </LinearLayout>
+        <!-- Buton pentru cheltuieli lunare -->
+        <Button
+            android:id="@+id/btnMonthlyExpenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="💰 Cheltuieli lunare"
+            android:backgroundTint="@color/purple_200"
+            android:textColor="@color/white"
+            android:background="@color/dark_gray"
+            android:textStyle="bold"/>
     </LinearLayout>
 </ScrollView>

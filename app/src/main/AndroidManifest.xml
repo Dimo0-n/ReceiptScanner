@@ -46,7 +46,11 @@
 
         <activity
             android:name=".ui.game.GamificationActivity"
-            android:theme="@style/Theme.MyApplicationTMPPP" />
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.game.MonthlyExpensesActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.notifications.NotificationActivity"
