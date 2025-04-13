@@ -1,5 +1,6 @@
 package com.example.myapplicationtmppp.ui.scanner
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -27,6 +28,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class ScanResultActivity : AppCompatActivity() {
+
+    private val allProcessedReceipts = mutableListOf<String>()
+
+    companion object {
+        const val PREFS_NAME = "ReceiptsStorage"
+        const val KEY_RECEIPTS_LIST = "receipts_json_list"
+    }
 
     private val gson = Gson()
 
@@ -59,6 +67,7 @@ class ScanResultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_result)
+        loadReceiptsFromPrefs()
 
         val imageUriString = intent.getStringExtra("IMAGE_PATH")
         val deepseekResponse = intent.getStringExtra("DEEPSEEK_RESPONSE")
@@ -117,6 +126,13 @@ class ScanResultActivity : AppCompatActivity() {
                 return
             }
 
+            // Adăugare JSON procesat în listă
+            val processedJson = gson.toJson(receiptData)
+            allProcessedReceipts.add(processedJson)
+
+            // Salvare în SharedPreferences
+            saveReceiptsToPrefs()
+
             val (progress, newBadge) = savingsGameManager.updateProgress(receiptData.total)
 
             // Afișează progresul în UI
@@ -136,6 +152,23 @@ class ScanResultActivity : AppCompatActivity() {
             showError("Eroare neașteptată: ${e.message ?: "contactați dezvoltatorul"}",
                 findViewById(R.id.errorCard),
                 findViewById(R.id.tvErrorMessage))
+        }
+    }
+
+    private fun saveReceiptsToPrefs() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            putStringSet(KEY_RECEIPTS_LIST, allProcessedReceipts.toSet())
+            apply()
+        }
+    }
+
+    private fun loadReceiptsFromPrefs() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val savedReceipts = prefs.getStringSet(KEY_RECEIPTS_LIST, null)
+        savedReceipts?.let {
+            allProcessedReceipts.clear()
+            allProcessedReceipts.addAll(it)
         }
     }
 
