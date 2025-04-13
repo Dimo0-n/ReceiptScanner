@@ -87,7 +87,11 @@ class SavingsGameManager(private val context: Context) {
     }
 
     fun getAllBadges(): List<Badge> {
-        return goals.map { it.badge }
+        return listOf(
+            Badge("economist", "Economist începător", "Ai economisit 100 LEI", R.drawable.ic_badge_eco1),
+            Badge("expert", "Expert în economii", "Ai economisit 500 LEI", R.drawable.ic_badge_eco2),
+            // Adăugați mai multe insigne după nevoie
+        )
     }
 
 }
