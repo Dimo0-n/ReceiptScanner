@@ -22,6 +22,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myapplicationtmppp.ui.LoginActivity
 import com.example.myapplicationtmppp.databinding.ActivityMainBinding
+import com.example.myapplicationtmppp.ui.game.GamificationActivity
 import com.example.myapplicationtmppp.ui.notifications.GmailSender
 import com.example.myapplicationtmppp.ui.notifications.NotificationActivity
 import com.example.myapplicationtmppp.ui.notifications.NotificationSettingsActivity
@@ -109,6 +110,11 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        navView.menu.findItem(R.id.nav_stats).setOnMenuItemClickListener {
+            startActivity(Intent(this, GamificationActivity::class.java))
+            true
+        }
     }
 
     private fun setupNotifications() {
@@ -120,10 +126,10 @@ class MainActivity : AppCompatActivity() {
             notificationUtils.showNotification("Notificare Push", "Aceasta este o notificare push.")
         }, 60_000)
 
-        // Send email notification after 1 minute
-        handler.postDelayed({
-            sendEmailAfterDelay()
-        }, 60_000)
+//        // Send email notification after 1 minute
+//        handler.postDelayed({
+//            sendEmailAfterDelay()
+//        }, 60_000)
 
         // Send SMS notification after 3 minutes
         handler.postDelayed({
@@ -180,6 +186,10 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.notification_list -> {
                 startActivity(Intent(this, NotificationActivity::class.java))
+                true
+            }
+            R.id.nav_stats -> {
+                startActivity(Intent(this, GamificationActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)

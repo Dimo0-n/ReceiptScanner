@@ -10,5 +10,6 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_scanner">Scanner Receipt</string>
+    <string name="menu_stats">Stats</string>
     <string name="action_notifications">Notificări</string>
 </resources>

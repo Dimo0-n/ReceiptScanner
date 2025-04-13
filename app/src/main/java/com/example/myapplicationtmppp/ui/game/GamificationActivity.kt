@@ -1,9 +1,12 @@
 package com.example.myapplicationtmppp.ui.game
 
+import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.ImageView
@@ -16,6 +19,7 @@ import com.example.myapplicationtmppp.R
 import com.example.myapplicationtmppp.ui.scanner.ScanResultActivity
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 class GamificationActivity : AppCompatActivity() {
@@ -33,6 +37,73 @@ class GamificationActivity : AppCompatActivity() {
         setupUI()
         loadProgress()
         calculateStatistics()
+        setupMonthlyExpensesButton()
+    }
+
+    private fun setupMonthlyExpensesButton() {
+        findViewById<Button>(R.id.btnMonthlyExpenses).setOnClickListener {
+            startActivity(Intent(this, MonthlyExpensesActivity::class.java))
+        }
+    }
+
+    private fun showMonthYearPicker() {
+        val calendar = Calendar.getInstance()
+        DatePickerDialog(
+            this,
+            { _, year, month, _ ->
+                val selectedMonthYear = "${month + 1}/$year"
+                val total = calculateMonthlyExpense(month + 1, year)
+                displayMonthlyExpense(selectedMonthYear, total)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            1 // Ziua fixată la 1, doar pentru format
+        ).apply {
+            // Ascunde selectorul de zile
+            datePicker.findViewById<View>(resources.getIdentifier("day", "id", "android"))?.visibility = View.GONE
+        }.show()
+    }
+
+    private fun calculateMonthlyExpense(month: Int, year: Int): Double {
+        val prefs = getSharedPreferences(ScanResultActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        val receiptsJsonList = prefs.getStringSet(ScanResultActivity.KEY_RECEIPTS_LIST, null)
+        var total = 0.0
+
+        receiptsJsonList?.forEach { json ->
+            try {
+                val receipt = Gson().fromJson(json, ScanResultActivity.ReceiptInfo::class.java)
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val date = dateFormat.parse(receipt.date)
+                val cal = Calendar.getInstance().apply { time = date!! }
+
+                if (cal.get(Calendar.MONTH) + 1 == month && cal.get(Calendar.YEAR) == year) {
+                    total += receipt.total
+                }
+            } catch (e: Exception) {
+                Log.e("MONTHLY_EXPENSE", "Eroare procesare dată", e)
+            }
+        }
+
+        return total
+    }
+
+    private fun displayMonthlyExpense(monthYear: String, total: Double) {
+        val statsContainer = findViewById<LinearLayout>(R.id.containerStats)
+        val existingViews = statsContainer.childCount
+
+        // Șterge doar view-urile legate de cheltuielile lunare
+        for (i in existingViews - 1 downTo 0) {
+            val view = statsContainer.getChildAt(i)
+            if (view.findViewById<TextView>(R.id.tvStatTitle)?.text?.startsWith("📆") == true) {
+                statsContainer.removeViewAt(i)
+            }
+        }
+
+        addStatisticView(
+            "📆 Cheltuieli $monthYear",
+            "Total: ${"%.2f".format(total)} LEI",
+            statsContainer
+        )
     }
 
     private fun highlightBadge(badgeId: String) {
@@ -186,8 +257,8 @@ class GamificationActivity : AppCompatActivity() {
             return
         }
 
-        //Statistici pe magazine
-        addStatisticView("🏪 Statistici Magazine:", storeStats.entries.joinToString("\n\n") {
+        // Statistici pe magazine
+        addStatisticView("🏪 Statistici magazine:", storeStats.entries.joinToString("\n\n") {
             val store = it.value
             "${it.key}:\n" +
             "Total cheltuit: ${"%.2f".format(store.totalSpent)} LEI\n" +
@@ -199,6 +270,7 @@ class GamificationActivity : AppCompatActivity() {
     private fun addStatisticView(title: String, content: String, container: LinearLayout) {
         LayoutInflater.from(this).inflate(R.layout.item_statistic, container).apply {
             findViewById<TextView>(R.id.tvStatTitle).text = title
+            findViewById<TextView>(R.id.tvStatContent).text = content
         }
     }
 }
