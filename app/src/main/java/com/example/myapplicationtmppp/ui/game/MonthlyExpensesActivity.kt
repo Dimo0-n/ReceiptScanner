@@ -71,12 +71,10 @@ class MonthlyExpensesActivity : AppCompatActivity() {
         return total
     }
 
-
     private fun displayExpenses(monthYear: String, total: Double) {
         val container = findViewById<LinearLayout>(R.id.containerExpenses)
         container.removeAllViews()
 
-        // Adaugă datele în container
         addExpenseView("📆 $monthYear", "Total cheltuit: ${"%.2f".format(total)} LEI", container)
     }
 
