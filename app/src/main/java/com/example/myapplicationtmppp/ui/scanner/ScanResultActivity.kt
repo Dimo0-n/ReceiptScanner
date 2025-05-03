@@ -91,11 +91,10 @@ class ScanResultActivity : AppCompatActivity() {
 
     private fun processReceiptData(response: String?) {
         try {
-            val errorCard = findViewById<CardView>(R.id.errorCard)
-            val errorMessage = findViewById<TextView>(R.id.tvErrorMessage)
+            val errorCard = null;
+            val errorMessage = null;
 
             if (response.isNullOrEmpty()) {
-                showError("Nu s-au primit date valide", errorCard, errorMessage)
                 return
             }
 
@@ -120,9 +119,7 @@ class ScanResultActivity : AppCompatActivity() {
             }
 
             if (receiptData == null) {
-                showError("Structura datelor este invalidă. Verificați textul brut pentru detalii.",
-                    errorCard, errorMessage)
-                displayRawResponse(response) // Afișăm răspunsul original pentru depanare
+                displayRawResponse(response)
                 return
             }
 
@@ -145,13 +142,9 @@ class ScanResultActivity : AppCompatActivity() {
             displayStoreInfo(receiptData)
             displayProducts(receiptData.products)
             displayDiscounts(receiptData.discounts)
-            errorCard.visibility = View.GONE
 
         } catch (e: Exception) {
             Log.e("PROCESS_ERROR", "Eroare neașteptată", e)
-            showError("Eroare neașteptată: ${e.message ?: "contactați dezvoltatorul"}",
-                findViewById(R.id.errorCard),
-                findViewById(R.id.tvErrorMessage))
         }
     }
 
@@ -253,7 +246,7 @@ class ScanResultActivity : AppCompatActivity() {
             append("🏬 ${data.storeName}\n")
             append("Data📅 ${data.date}\n")
             append("Bon🆔 ${data.cecNumber}\n")
-            append("💵 Total: ${"%.2f".format(data.total)} + LEI")
+            append("💵 Total: ${"%.2f".format(data.total)} LEI")
         }
     }
 
@@ -305,7 +298,7 @@ class ScanResultActivity : AppCompatActivity() {
             val amountText = if (discount.amount == 0.0) {
                 "0 ${discount.currency}"
             } else {
-                "-${"%.2f".format(discount.amount)} + LEI"
+                "-${"%.2f".format(discount.amount)} LEI"
             }
 
             findViewById<TextView>(R.id.tvDiscountAmount).text = amountText

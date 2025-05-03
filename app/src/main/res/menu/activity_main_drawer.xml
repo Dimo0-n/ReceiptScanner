@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -17,11 +16,15 @@
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_gallery" />
-
         <item
             android:id="@+id/nav_stats"
             android:icon="@drawable/ic_menu_stats"
             android:title="@string/menu_stats" />
 
+        <!-- Item nou pentru Contacte -->
+        <item
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_contact"
+        android:title="@string/menu_contacts" />
     </group>
 </menu>

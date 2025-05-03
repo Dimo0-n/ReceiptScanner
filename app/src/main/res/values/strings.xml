@@ -12,4 +12,5 @@
     <string name="menu_scanner">Scanner Receipt</string>
     <string name="menu_stats">Stats</string>
     <string name="action_notifications">Notificări</string>
+    <string name="menu_contacts">Contacts</string>
 </resources>

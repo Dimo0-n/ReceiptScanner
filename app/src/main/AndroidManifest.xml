@@ -44,6 +44,15 @@
             android:name=".ui.scanner.ScanResultActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.contact.ContactsActivity">
+            <!-- Poți adăuga aici alte atribute dacă dorești -->
+        </activity>
+
+        <activity android:name=".ui.contact.AddContactActivity">
+            <!-- Configurații suplimentare, dacă e necesar -->
+        </activity>
+
+
         <activity
             android:name=".ui.game.GamificationActivity"
             android:exported="false" />
@@ -57,7 +66,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.notifications.NotificationSettingsActivity"
+            android:name=".ui.notifications.SettingsActivity"
             android:exported="false" />
 
         <activity
