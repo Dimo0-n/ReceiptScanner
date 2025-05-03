@@ -91,7 +91,7 @@ class DeepseekService {
             4. Nu adăuga explicații suplimentare
             5. Data cecului nu poate fi mai mare decat data actuala
             6.cec_number are formatul ###-Bon-*******.*****.*****-###
-            7.numele magazinului scrie-l asa: prima litera din cuvant cu majuscula restul cu mici, abreviatura ca S.R.L ramane cu litere mari
+            7.numele magazinului scrie-l asa: prima litera din cuvant cu majuscula restul cu mici, orice abreviatura ramane cu litere mari
         """.trimIndent()
     }
 

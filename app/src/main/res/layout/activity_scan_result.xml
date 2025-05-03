@@ -35,33 +35,6 @@
                     android:contentDescription="Imagine CEC"/>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card pentru erori -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/errorCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/error_red"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvErrorMessage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:lineSpacingMultiplier="1.2"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
             <!-- Card informații magazin -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -136,7 +109,7 @@
                 app:cardBackgroundColor="@color/gray"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
-                android:layout_marginBottom="72dp"> <!-- Spațiu pentru FAB -->
+                android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -160,6 +133,17 @@
                         android:orientation="vertical"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- Butonul de Partajare -->
+            <Button
+                android:id="@+id/btnShare"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Partajează 🔗"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/purple_500"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="72dp"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

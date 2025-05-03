@@ -22,10 +22,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.myapplicationtmppp.ui.LoginActivity
 import com.example.myapplicationtmppp.databinding.ActivityMainBinding
+import com.example.myapplicationtmppp.ui.contact.ContactsActivity
 import com.example.myapplicationtmppp.ui.game.GamificationActivity
 import com.example.myapplicationtmppp.ui.notifications.GmailSender
 import com.example.myapplicationtmppp.ui.notifications.NotificationActivity
-import com.example.myapplicationtmppp.ui.notifications.NotificationSettingsActivity
+import com.example.myapplicationtmppp.ui.notifications.SettingsActivity
 import com.example.myapplicationtmppp.ui.notifications.NotificationUtils
 import com.google.android.material.navigation.NavigationView
 
@@ -115,6 +116,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, GamificationActivity::class.java))
             true
         }
+        navView.menu.findItem(R.id.nav_contacts).setOnMenuItemClickListener {
+            startActivity(Intent(this, ContactsActivity::class.java))
+            true
+        }
     }
 
     private fun setupNotifications() {
@@ -181,7 +186,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_notification_settings -> {
-                startActivity(Intent(this, NotificationSettingsActivity::class.java))
+                startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
             R.id.notification_list -> {
@@ -190,6 +195,10 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.nav_stats -> {
                 startActivity(Intent(this, GamificationActivity::class.java))
+                true
+            }
+            R.id.nav_contacts -> {
+                startActivity(Intent(this, ContactsActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
